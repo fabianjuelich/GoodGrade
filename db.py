@@ -1,10 +1,10 @@
 import os
 import sqlite3
 
-connection = sqlite3.Connection(os.path.join(os.path.dirname(__file__), 'gg.db'))
+connection = sqlite3.Connection(os.path.join(os.path.dirname(__file__), 'grades.db'))
 cursor = sqlite3.Cursor(connection)
 
-cursor.execute('CREATE TABLE IF NOT EXISTS Grades (Modul TEXT PRIMARY KEY, Grade REAL, CP REAL)')
+cursor.execute('CREATE TABLE IF NOT EXISTS Grades (Module TEXT PRIMARY KEY, Grade REAL, CP REAL)')
 connection.commit()
 
 def select(module=None):
