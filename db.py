@@ -8,13 +8,17 @@ cursor.execute('CREATE TABLE IF NOT EXISTS Grades (Module TEXT PRIMARY KEY, Grad
 connection.commit()
 
 def select(module=None):
-    stmt = 'SELECT * FROM Grades WHERE Module = ?' if module else 'SELECT * FROM Grades'
+    stmt = 'SELECT * FROM Grades WHERE Module = ?' if module else 'SELECT * FROM Grades ORDER BY Module'
     bind = (module,) if module else ()
     cursor.execute(stmt, bind)
     return cursor.fetchone() if module else cursor.fetchall()
 
 def insert(module, grade, cp):
     cursor.execute('INSERT INTO Grades VALUES(?, ?, ?)', (module, grade, cp))
+    connection.commit()
+
+def delete(module):
+    cursor.execute('DELETE FROM Grades WHERE Module = ?', (module,))
     connection.commit()
 
 def avg() -> float:

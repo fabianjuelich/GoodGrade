@@ -1,8 +1,29 @@
 import customtkinter as ctk
+import tkinter as tk
 import db
 from enum import Enum, auto
+import time
+import threading
 
 class App(ctk.CTk):
+
+    # state
+    def entryState(self, enable: bool):
+        self.moduleCombo.configure(state='normal' if enable else 'readonly')
+        self.gradeEntry.configure(state='normal' if enable else 'disabled')
+        self.cpEntry.configure(state='normal' if enable else 'disabled')
+
+    def confirmState(self, cancel: bool, ok: bool):
+        self.cancelButton.configure(state='normal' if cancel else 'disabled')
+        self.okButton.configure(state='normal' if ok else 'disabled')
+
+    def validateEntries(self, *args):
+        self.confirmState(True if self.mode else False, self.mode and self.module.get() and self.grade.get() and self.cp.get())
+
+    def menuState(self, new, modify, delete):
+        self.newButton.configure(state='normal' if new else 'disabled')
+        self.modButton.configure(state='normal' if modify else 'disabled')
+        self.delButton.configure(state='normal' if delete else 'disabled')
 
     # menu
     class Mode(Enum):
@@ -12,108 +33,129 @@ class App(ctk.CTk):
 
     def new(self):
         self.mode = self.Mode.NEW
-        self.feedback.set('')
-        self.moduleCombo.set('')
-        self.moduleCombo.configure(state='normal')
-        self.grade.set('')
-        self.cp.set('')
-        self.gradeEntry.configure(state='normal')
-        self.cpEntry.configure(state='normal')
+        self.menuState(False, False, False)
+        self.clearEntry()
+        self.feedback.set(self.emojis[self.Mode.NEW])
+        self.entryState(True)
+        self.moduleCombo.focus_set()
         self.cancelButton.configure(state='normal')
-    
+
     def modify(self):
         self.mode = self.Mode.MOD
-        self.okayBtnState(True)
 
     def delete(self):
-        pass
-
-    # enabling
-    def entryState(self, enable: bool):
-        self.moduleCombo.configure(state='normal' if enable else 'readonly')
-        self.gradeEntry.configure(state='normal' if enable else 'disabled')
-        self.cpEntry.configure(state='normal' if enable else 'disabled')
-
-    def okayBtnState(self, enable: bool):
-        self.okButton.configure(state='normal' if enable else 'disabled')
-
-    def validateEntries(self, *args):
-        if self.mode and self.module.get() and self.grade.get() and self.cp.get():
-            self.okayBtnState(True)
+        self.mode = self.Mode.DEL
+        self.delButton.configure(state='disabled')
+        self.feedback.set(self.emojis[self.Mode.DEL])
+        self.entryState(False)
+        self.moduleCombo.configure(state='disabled')
+        self.confirmState(True, True)
 
     # output
-    def clear(self):
-        pass
+    emojis = {Mode.NEW: u'\uFF0B', Mode.MOD: u'\u25B2', Mode.DEL: u'\uFF0D', 'avg': u'\u2300', 'chkmark': u'\u2713'}
 
-    def showData(self, module):
-        self.feedback.set('')
+    def clearEntry(self):
+        self.module.set('')
+        self.grade.set('')
+        self.cp.set('')
+
+    def showGrade(self, module):
+        self.rstFeedback()
         row = db.select(module)
         self.grade.set(row[1])
         self.cp.set(row[2])
+        self.delButton.configure(state='normal')
 
     def refreshList(self):
         self.moduleCombo.configure(values=[row[0] for row in db.select()])
 
     def refreshAvg(self):
-        self.avg.set('⌀ ' + str(round(db.avg(), 2)))
+        try:
+            avg = db.avg()
+        except:
+            pass
+        self.avg.set(u'\u2300' + (f' {str(round(avg, 2))}' if avg else ''))    #\u2205 -> bigger
+
+    def error(self):
+        self.feedback.set(u'\u2715')
+
+    # resetting
+    def rstFeedback(self):
+        self.feedback.set('')
+
+    def prompts(self):
+        self.grade.set('Grade')
+        self.cp.set('CP')
+        self.moduleCombo.set('Module')
+
+    def disableEntry(self):
+        self.entryState(False)
+        self.confirmState(False, False)
+
+    def rstAll(self):
+        self.menuState(True, False, False)
+        self.disableEntry()
 
     # confirmation
     def cancel(self):
         self.mode = None
-        self.resetAll()
+        self.rstFeedback()
+        self.rstAll()
+        self.clearEntry()
 
-    def okay(self):
+    def refresh(self):
+        self.refreshList()
+        self.refreshAvg()
+
+    def chkmark(self, afterwards):
+        self.feedback.set(self.emojis['chkmark'])
+        time.sleep(1)
+        self.feedback.set(self.emojis[afterwards] if afterwards else '')
+
+    def chkmarkBg(self, afterwards=None):
+        chkmarkThread = threading.Thread(target=self.chkmark, args=[afterwards])
+        chkmarkThread.start()
+
+    def ok(self):
         match(self.mode):
             case self.Mode.NEW:
                 try:
                     db.insert(self.module.get(), self.grade.get(), self.cp.get())
-                    self.feedback.set(u'\uFF0B')
+                    self.clearEntry()
+                    self.moduleCombo.focus_set()
+                    self.refresh()
+                    self.chkmarkBg(self.mode)
                 except:
-                    print('db: Inserting failed')
+                    self.error()
+                    return
             case self.Mode.MOD:
                 try:
-                    self.feedback.set(u'\u25B2')
+                    pass
                 except:
-                    print('db: Updating failed')
+                    self.error()
+                    return
             case self.Mode.DEL:
                 try:
-                    self.feedback.set(u'\uFF0D')
+                    db.delete(self.module.get())
+                    self.clearEntry()
+                    self.refresh()
+                    self.mode = None
+                    self.rstAll()
+                    self.chkmarkBg(self.mode)
                 except:
-                    print('db: Deleting failed')
+                    self.error()
+                    return
             case _:
                 raise Exception()
-        self.mode = None
-        self.disableEntries()
-        self.disableMenu()
-        self.refreshList()
-        self.refreshAvg()
-
-    # reseting
-    def prompts(self):
-        self.grade.set('Grade')
-        self.cp.set('CP')
-        self.moduleCombo.set('Choose module')
-
-    def disableEntries(self):
-        self.entryState(False)
-        self.cancelButton.configure(state='disabled')
-        self.okButton.configure(state='disabled')
-
-    def disableMenu(self):
-        self.modButton.configure(state='disabled')
-        self.delButton.configure(state='disabled')
-
-    def resetAll(self):
-        self.prompts()
-        self.disableEntries()
-        self.disableMenu()
 
     # initialization
     def __init__(self):
         super().__init__()
 
         # window configuration
-        self.title('GoodGrades')
+        self.title('GoodGrade')
+        self.icon = tk.PhotoImage(file = "icons8-grades-100.png")
+        self.iconphoto(False, self.icon)
         ctk.set_appearance_mode('dark')
         ctk.set_default_color_theme('dark-blue')
         
@@ -132,18 +174,18 @@ class App(ctk.CTk):
 
         self.newButton = ctk.CTkButton(self.menuSection, text='New', width=self.x/(1/0.3), command=self.new)
         self.modButton = ctk.CTkButton(self.menuSection, text='Modify', width=self.x/(1/0.3), command=self.modify)
-        self.delButton = ctk.CTkButton(self.menuSection, text='Delete', width=self.x/(1/0.3))
+        self.delButton = ctk.CTkButton(self.menuSection, text='Delete', width=self.x/(1/0.3), command=self.delete)
 
         self.feedback = ctk.StringVar(value='')
         self.feedbackLabel = ctk.CTkLabel(self.inoutFields, textvariable=self.feedback)
         self.module = ctk.StringVar()
-        self.moduleCombo = ctk.CTkComboBox(self.inoutFields, width=self.y/1.1, values=[row[0] for row in db.select()], variable=self.module, command=self.showData)
+        self.moduleCombo = ctk.CTkComboBox(self.inoutFields, width=self.y/1.1, values=[row[0] for row in db.select()], variable=self.module, command=self.showGrade)
         self.grade = ctk.StringVar()
         self.gradeEntry = ctk.CTkEntry(self.inoutFields, width=self.y/2.2, justify=ctk.RIGHT, placeholder_text='Grade', textvariable=self.grade)
         self.cp = ctk.StringVar()
         self.cpEntry = ctk.CTkEntry(self.inoutFields, width=self.y/2.2, justify=ctk.RIGHT, placeholder_text='CP', textvariable=self.cp)
         self.cancelButton= ctk.CTkButton(self.confirmFields, width=self.y/2.2, text='Cancel', command=self.cancel)
-        self.okButton = ctk.CTkButton(self.confirmFields, width=self.y/2.2, text='OK', command=self.okay)
+        self.okButton = ctk.CTkButton(self.confirmFields, width=self.y/2.2, text='OK', command=self.ok)
         self.avg = ctk.StringVar(value='⌀')
         self.avgLabel = ctk.CTkLabel(self.inoutSection, font=('TkCaptionFont', 20), textvariable=self.avg)
 
@@ -171,15 +213,12 @@ class App(ctk.CTk):
 
         self.printButton.pack()
 
+        # initialize
+        self.rstAll()
+        self.prompts()
+        self.refreshAvg()
         # current mode
         self.mode = None
-
-        # initialize
-        self.resetAll()
-        try:
-            self.refreshAvg()
-        except:
-            pass
 
         # tracing events
         self.module.trace('w', self.validateEntries)
