@@ -17,6 +17,10 @@ def insert(module, grade, cp):
     cursor.execute('INSERT INTO Grades VALUES(?, ?, ?)', (module, grade, cp))
     connection.commit()
 
+def modify(grade, cp, module):
+    cursor.execute('UPDATE Grades SET grade = ?, cp = ? WHERE module = ?', (grade, cp, module))
+    connection.commit()
+
 def delete(module):
     cursor.execute('DELETE FROM Grades WHERE Module = ?', (module,))
     connection.commit()
