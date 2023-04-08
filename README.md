@@ -1,5 +1,5 @@
 # GG-GoodGrade
 
-![preview](preview.png)
+![preview](Assets/preview.png)
 
 Icons by https://icons8.com
