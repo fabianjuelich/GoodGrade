@@ -4,6 +4,7 @@ import db
 from enum import Enum, auto
 import time
 import threading
+import pdf
 
 class App(ctk.CTk):
 
@@ -61,7 +62,7 @@ class App(ctk.CTk):
         self.confirmState(True, True)
 
     # output
-    emojis = {None: '', Mode.NEW: u'\uFF0B', Mode.MOD: u'\u25B2', Mode.DEL: u'\uFF0D', 'avg': u'\u2300', 'chkmark': u'\u2713', 'err': u'\u2715'}
+    emojis = {None: '', Mode.NEW: u'\uFF0B', Mode.MOD: u'\u25B2', Mode.DEL: u'\uFF0D', 'avg': u'\u2300', 'chkmark': u'\u2713', 'err': u'\u2715', 'printer': u'\u2399'}
 
     def clearEntry(self):
         self.module.set('')
@@ -88,6 +89,10 @@ class App(ctk.CTk):
     def refresh(self):
         self.refreshList()
         self.refreshAvg()
+
+    def pdf(self):
+        pdf.print2pdf()
+        self.setFeedback(self.emojis['printer'])
 
     # resetting
     def rstFeedback(self):
@@ -204,7 +209,7 @@ class App(ctk.CTk):
         self.avg = ctk.StringVar(value='⌀')
         self.avgLabel = ctk.CTkLabel(self.inoutSection, font=('TkCaptionFont', 20), textvariable=self.avg)
 
-        self.printButton = ctk.CTkButton(self.printSection, text='Print')
+        self.printButton = ctk.CTkButton(self.printSection, text='Print', command=self.pdf)
 
         # packing
         self.frame.pack(expand='True')
