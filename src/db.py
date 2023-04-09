@@ -1,7 +1,6 @@
-import os
 import sqlite3
 
-connection = sqlite3.Connection(os.path.join(os.path.dirname(__file__), 'Assets/grades.db'))
+connection = sqlite3.Connection('grades.db')
 cursor = sqlite3.Cursor(connection)
 
 cursor.execute('CREATE TABLE IF NOT EXISTS Grades (course TEXT PRIMARY KEY, grade REAL, factor REAL)')

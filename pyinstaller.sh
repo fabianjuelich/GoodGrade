@@ -1,0 +1,1 @@
+pyinstaller -y -F -w -i "./assets/icons8-grades-100.ico" --add-data "./src:src/" --add-data "./assets:assets/" --add-data "/home/$USER/.local/lib/python3.10/site-packages/customtkinter:customtkinter/" --hidden-import PIL._tkinter_finder "./main.py" -n "GoodGrade"

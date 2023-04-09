@@ -1,5 +1,5 @@
 from fpdf import FPDF
-import db
+import src.db as db
 import datetime
 import webbrowser
 import os
@@ -14,13 +14,13 @@ def print2pdf():
 
     # icon
     pdf.set_xy(10, 10)
-    pdf.image('Assets/icons8-grades-100.png', w=20, h=20)
+    pdf.image(os.path.join(os.path.dirname(__file__), '../assets/icons8-grades-100.png'), w=20, h=20)
     # title
     pdf.set_xy(32, 10)
     pdf.set_font('Helvetica', 'b', 32)
     pdf.cell(100, 20, 'GoodGrade')
     #link
-    pdf.link(10, 10, 85, 18, 'https://github.com/fabianjuelich/gg-goodgrade')
+    pdf.link(10, 10, 85, 18, 'https://github.com/fabianjuelich/goodgrade')
 
     # header
     # name

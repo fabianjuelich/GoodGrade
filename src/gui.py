@@ -1,11 +1,14 @@
 import customtkinter as ctk
 import tkinter as tk
-import db
+import src.db as db
 from enum import Enum, auto
 import time
 import threading
-import pdf
+import src.pdf as pdf
 from tktooltip import ToolTip
+from PIL import Image
+import webbrowser
+import os
 
 class App(ctk.CTk):
 
@@ -147,8 +150,7 @@ class App(ctk.CTk):
         errorThread.start()
 
     def ok(self, *_):
-        # valid = self.entryValid()
-        if not all(self.entryValid()):# valid[0] and not valid[1]:
+        if not all(self.entryValid()):
             return
         match(self.mode):
             case self.Mode.ADD:
@@ -192,7 +194,7 @@ class App(ctk.CTk):
 
         # window configuration
         self.title('GoodGrade')
-        self.icon = tk.PhotoImage(file = "Assets/icons8-grades-100.png")
+        self.icon = tk.PhotoImage(file = os.path.join(os.path.dirname(__file__), '../assets/icons8-grades-100.png'))
         self.iconphoto(False, self.icon)
         ctk.set_appearance_mode('dark')
         ctk.set_default_color_theme('dark-blue')
@@ -210,7 +212,7 @@ class App(ctk.CTk):
         self.gradeSection = ctk.CTkFrame(self.inoutFields, width=self.x/2)
         self.factorSection = ctk.CTkFrame(self.inoutFields, width=self.x/2)
         self.confirmFields = ctk.CTkFrame(self.inoutSection, fg_color='transparent')
-        self.printSection = ctk.CTkFrame(self.frame, fg_color='transparent')
+        self.pdfSection = ctk.CTkFrame(self.frame, fg_color='transparent')
 
         self.addButton = ctk.CTkButton(self.menuSection, text='Add', width=self.x/3.4, command=self.add)
         self.modButton = ctk.CTkButton(self.menuSection, text='Modify', width=self.x/3.4, command=self.modify)
@@ -221,9 +223,9 @@ class App(ctk.CTk):
         self.course = ctk.StringVar()
         self.courseCombo = ctk.CTkComboBox(self.inoutFields, width=self.x/1.1, values=[row[0] for row in db.select()], variable=self.course, command=self.showGrade)
         self.grade = ctk.StringVar()
-        self.gradeEntry = ctk.CTkEntry(self.gradeSection, width=self.x/2.2, justify=ctk.RIGHT, placeholder_text='Grade', textvariable=self.grade)
+        self.gradeEntry = ctk.CTkEntry(self.gradeSection, width=self.x/2.2, justify=ctk.CENTER, placeholder_text='Grade', textvariable=self.grade)
         self.factor = ctk.StringVar()
-        self.factorEntry = ctk.CTkEntry(self.factorSection, width=self.x/2.2, justify=ctk.RIGHT, placeholder_text='factor', textvariable=self.factor)
+        self.factorEntry = ctk.CTkEntry(self.factorSection, width=self.x/2.2, justify=ctk.CENTER, placeholder_text='factor', textvariable=self.factor)
         self.inclFactor = ctk.StringVar(value='yes')
         self.factorCheck = ctk.CTkCheckBox(self.factorSection, width=self.x/20, height=self.x/20, variable=self.inclFactor, onvalue="yes", offvalue='no', text=None)
         self.cancelButton= ctk.CTkButton(self.confirmFields, width=self.x/2.2, text='Cancel', command=self.cancel)
@@ -231,15 +233,18 @@ class App(ctk.CTk):
         self.avg = ctk.StringVar(value='⌀')
         self.avgLabel = ctk.CTkLabel(self.inoutSection, font=('TkCaptionFont', 20), textvariable=self.avg)
 
-        self.printButton = ctk.CTkButton(self.printSection, width=self.x/4, text='Print', command=self.pdf)
+        self.printerImage = ctk.CTkImage(Image.open(os.path.join(os.path.dirname(__file__), '../assets/printer-icon.png')))
+        self.pdfButton = ctk.CTkButton(self.pdfSection, width=self.x/5, text='PDF', image=self.printerImage, command=self.pdf)
+        self.githubImage = ctk.CTkImage(Image.open(os.path.join(os.path.dirname(__file__), '../assets/github-mark-white.png')))
+        self.githubButton = ctk.CTkButton(self.pdfSection, width=0, height=0, fg_color='transparent', hover=False, image=self.githubImage, text=None, command=lambda:webbrowser.open('https://github.com/fabianjuelich/goodgrade'))
 
         # packing
         self.frame.pack(expand='True')
-        self.menuSection.pack()
-        self.inoutSection.pack(pady=self.y/10)
+        self.menuSection.pack(pady=self.y/40)
+        self.inoutSection.pack(pady=self.y/24)
         self.inoutFields.pack()
         self.confirmFields.pack()
-        self.printSection.pack()
+        self.pdfSection.pack()
 
         self.addButton.pack(side=ctk.LEFT, padx=self.x/200)
         self.modButton.pack(side=ctk.LEFT, padx=self.x/200)
@@ -256,7 +261,8 @@ class App(ctk.CTk):
         self.okButton.pack(side=ctk.LEFT, padx=self.x/300, pady=self.y/100)
         self.avgLabel.pack(pady=self.y/20)
 
-        self.printButton.pack()
+        self.pdfButton.pack()
+        self.githubButton.pack(pady=self.y/40)
 
         # initialize
         self.rstAll()

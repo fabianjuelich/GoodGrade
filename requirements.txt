@@ -1,0 +1,5 @@
+customtkinter==5.1.2
+fpdf==1.7.2
+fpdf2==2.7.3
+Pillow==9.5.0
+tkinter_tooltip==2.1.0
