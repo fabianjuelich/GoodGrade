@@ -1,6 +1,16 @@
 import sqlite3
+from configparser import ConfigParser
+import os
 
-connection = sqlite3.Connection('grades.db')
+config = ConfigParser()
+config.read(os.path.join(os.path.dirname(__file__), '../config.ini'))
+
+try:
+    if config.get('database', 'path'):
+        connection = sqlite3.Connection(config.get('database', 'path'))
+    else: raise Exception('No path set - use default')
+except: # ToDo: add warning
+    connection = sqlite3.Connection('grades.db')
 cursor = sqlite3.Cursor(connection)
 
 cursor.execute('CREATE TABLE IF NOT EXISTS Grades (course TEXT PRIMARY KEY, grade REAL, factor REAL)')
