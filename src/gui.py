@@ -87,7 +87,7 @@ class App(ctk.CTk):
         self.confirmState(True, True)
 
     # output
-    emojis = {None: '', Mode.ADD: u'\uFF0B', Mode.MOD: u'\u25B2', Mode.DEL: u'\uFF0D', 'avg': u'\u2300', 'chkmark': u'\u2713', 'err': u'\u2715', 'printer': u'\u2399'}
+    emojis = {None: '', Mode.ADD: u'\uFF0B', Mode.MOD: u'\u25B2', Mode.DEL: u'\uFF0D', 'avg': u'\u2300', 'credits': u'\u03A3', 'chkmark': u'\u2713', 'err': u'\u2715', 'printer': u'\u2399'}
 
     def clearEntry(self):
         self.course.set('')
@@ -109,11 +109,19 @@ class App(ctk.CTk):
             avg = db.avg()
         except:
             pass
-        self.avg.set(self.emojis['avg'] + (f' {str(round(avg, 2))}' if avg else ''))
+        self.avg.set(self.emojis['avg'] + (f' {round(avg, 2)}' if avg else ''))
+
+    def refreshCredits(self):
+        try:
+            credits = db.credits()
+        except:
+            pass
+        self.credits.set(self.emojis['credits'] + f' {credits}')
 
     def refresh(self):
         self.refreshList()
         self.refreshAvg()
+        self.refreshCredits()
 
     def pdf(self):
         pdf.print2pdf()
@@ -165,7 +173,7 @@ class App(ctk.CTk):
                     return
             case self.Mode.MOD:
                 try:
-                    db.modify(self.grade.get(), self.factor.get(), self.course.get())
+                    db.update(self.grade.get(), self.factor.get(), self.course.get())
                     self.disableEntry()
                     self.menuState(True, True, True)
                     self.refresh()
@@ -197,7 +205,7 @@ class App(ctk.CTk):
         self.icon = tk.PhotoImage(file = os.path.join(os.path.dirname(__file__), '../assets/icons8-grades-100.png'))
         self.iconphoto(False, self.icon)
         ctk.set_appearance_mode('dark')
-        ctk.set_default_color_theme('dark-blue')
+        ctk.set_default_color_theme('green')
         
         # dimensions
         self.x = 360
@@ -221,7 +229,7 @@ class App(ctk.CTk):
         self.feedback = ctk.StringVar(value='')
         self.feedbackLabel = ctk.CTkLabel(self.inoutFields, font=('TkCaptionFont', 20), textvariable=self.feedback)
         self.course = ctk.StringVar()
-        self.courseCombo = ctk.CTkComboBox(self.inoutFields, width=self.x/1.1, values=[row[0] for row in db.select()], variable=self.course, command=self.showGrade)
+        self.courseCombo = ctk.CTkComboBox(self.inoutFields, width=self.x/1.1, variable=self.course, command=self.showGrade)    #, values=[row[0] for row in db.select()]
         self.grade = ctk.StringVar()
         self.gradeEntry = ctk.CTkEntry(self.gradeSection, width=self.x/2.2, justify=ctk.CENTER, placeholder_text='Grade', textvariable=self.grade)
         self.factor = ctk.StringVar()
@@ -230,8 +238,10 @@ class App(ctk.CTk):
         self.factorCheck = ctk.CTkCheckBox(self.factorSection, width=self.x/20, height=self.x/20, variable=self.inclFactor, onvalue="yes", offvalue='no', text=None)
         self.cancelButton= ctk.CTkButton(self.confirmFields, width=self.x/2.2, text='Cancel', command=self.cancel)
         self.okButton = ctk.CTkButton(self.confirmFields, width=self.x/2.2, text='OK', command=self.ok)
-        self.avg = ctk.StringVar(value='⌀')
+        self.avg = ctk.StringVar(value=self.emojis['avg'])
         self.avgLabel = ctk.CTkLabel(self.inoutSection, font=('TkCaptionFont', 20), textvariable=self.avg)
+        self.credits = ctk.StringVar(value=self.emojis['credits'])
+        self.creditsLabel = ctk.CTkLabel(self.inoutSection, font=('TkCaptionFont', 20), textvariable=self.credits)
 
         self.printerImage = ctk.CTkImage(Image.open(os.path.join(os.path.dirname(__file__), '../assets/printer-icon.png')))
         self.pdfButton = ctk.CTkButton(self.pdfSection, width=self.x/5, text='PDF', image=self.printerImage, command=self.pdf)
@@ -258,15 +268,16 @@ class App(ctk.CTk):
         #self.factorCheck.pack(side=ctk.RIGHT, padx=self.x/300)
         self.factorEntry.pack(side=ctk.RIGHT, padx=self.x/300)
         self.cancelButton.pack(side=ctk.LEFT, padx=self.x/300, pady=self.y/100)
-        self.okButton.pack(side=ctk.LEFT, padx=self.x/300, pady=self.y/100)
-        self.avgLabel.pack(pady=self.y/20)
+        self.okButton.pack(side=ctk.LEFT, pady=self.y/100)
+        self.avgLabel.pack(side=ctk.LEFT, pady=self.y/20, expand=True)
+        self.creditsLabel.pack(side=ctk.LEFT, padx=self.x/300, pady=self.y/20, expand=True)
 
         self.pdfButton.pack()
         self.githubButton.pack(pady=self.y/40)
 
         # initialize
         self.rstAll()
-        self.refreshAvg()
+        self.refresh()
         # current mode
         self.mode = None
 

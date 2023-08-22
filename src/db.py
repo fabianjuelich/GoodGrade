@@ -16,7 +16,7 @@ def insert(course, grade, factor):
     cursor.execute('INSERT INTO Grades VALUES(?, ?, ?)', (course, grade, factor))
     connection.commit()
 
-def modify(grade, factor, course):
+def update(grade, factor, course):
     cursor.execute('UPDATE Grades SET grade = ?, factor = ? WHERE course = ?', (grade, factor, course))
     connection.commit()
 
@@ -26,4 +26,8 @@ def delete(course):
 
 def avg() -> float:
     cursor.execute('SELECT SUM(Grade*factor)/SUM(factor) FROM Grades')
+    return cursor.fetchone()[0]
+
+def credits() -> float:
+    cursor.execute('SELECT SUM(factor) FROM Grades')
     return cursor.fetchone()[0]

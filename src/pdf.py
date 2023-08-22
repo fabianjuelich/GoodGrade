@@ -13,14 +13,14 @@ def print2pdf():
     pdf.add_page()
 
     # icon
-    pdf.set_xy(10, 10)
+    pdf.set_xy(10, 8)
     pdf.image(os.path.join(os.path.dirname(__file__), '../assets/icons8-grades-100.png'), w=20, h=20)
     # title
-    pdf.set_xy(32, 10)
+    pdf.set_xy(32, 8)
     pdf.set_font('Helvetica', 'b', 32)
-    pdf.cell(100, 20, 'GoodGrade')
+    pdf.cell(86, 20, 'GoodGrade')
     #link
-    pdf.link(10, 10, 85, 18, 'https://github.com/fabianjuelich/goodgrade')
+    pdf.link(10, 8, 86, 20, 'https://github.com/fabianjuelich/goodgrade')
 
     # header
     # name
@@ -29,6 +29,8 @@ def print2pdf():
     pdf.cell(40, 10, 'Date:')
     pdf.set_xy(120, 20)
     pdf.cell(40, 10, 'Average:')
+    pdf.set_xy(120, 28)
+    pdf.cell(40, 10, 'Total:')
     # value
     pdf.set_xy(160, 12)
     pdf.set_font('Helvetica', '', 18)
@@ -36,6 +38,8 @@ def print2pdf():
     if table:
         pdf.set_xy(160, 20)
         pdf.cell(40, 10, str(round(db.avg(), 2)))
+        pdf.set_xy(160, 28)
+        pdf.cell(40, 10, str(db.credits()))
 
     # grade list
     # col
