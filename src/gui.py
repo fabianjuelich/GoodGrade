@@ -9,6 +9,7 @@ from tktooltip import ToolTip
 from PIL import Image
 import webbrowser
 import os
+import math
 
 class App(ctk.CTk):
 
@@ -109,7 +110,7 @@ class App(ctk.CTk):
             avg = db.avg()
         except:
             pass
-        self.avg.set(self.emojis['avg'] + (f' {round(avg, 2)}' if avg else ''))
+        self.avg.set(self.emojis['avg'] + (f' {(math.floor(avg*100)/100)}' if avg else ''))
 
     def refreshCredits(self):
         try:

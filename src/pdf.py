@@ -3,6 +3,7 @@ import src.db as db
 import datetime
 import webbrowser
 import os
+import math
 
 def print2pdf():
 
@@ -37,7 +38,7 @@ def print2pdf():
     pdf.cell(40, 10, str(datetime.date.today()))
     if table:
         pdf.set_xy(160, 20)
-        pdf.cell(40, 10, str(round(db.avg(), 2)))
+        pdf.cell(40, 10, str((math.floor(db.avg()*100)/100)))
         pdf.set_xy(160, 28)
         pdf.cell(40, 10, str(db.credits()))
 
