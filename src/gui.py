@@ -117,7 +117,7 @@ class App(ctk.CTk):
             credits = db.credits()
         except:
             pass
-        self.credits.set(self.emojis['credits'] + f' {credits}')
+        self.credits.set(self.emojis['credits'] + (f' {credits}' if credits else ''))
 
     def refresh(self):
         self.refreshList()
@@ -230,18 +230,18 @@ class App(ctk.CTk):
         self.feedback = ctk.StringVar(value='')
         self.feedbackLabel = ctk.CTkLabel(self.inoutFields, font=('TkCaptionFont', 20), textvariable=self.feedback)
         self.course = ctk.StringVar()
-        self.courseCombo = ctk.CTkComboBox(self.inoutFields, width=self.x/1.1, variable=self.course, command=self.showGrade)    #, values=[row[0] for row in db.select()]
+        self.courseCombo = ctk.CTkComboBox(self.inoutFields, width=self.x/1.1, variable=self.course, command=self.showGrade)
         self.grade = ctk.StringVar()
         self.gradeEntry = ctk.CTkEntry(self.gradeSection, width=self.x/2.2, justify=ctk.CENTER, placeholder_text='Grade', textvariable=self.grade)
         self.factor = ctk.StringVar()
         self.factorEntry = ctk.CTkEntry(self.factorSection, width=self.x/2.2, justify=ctk.CENTER, placeholder_text='factor', textvariable=self.factor)
-        self.inclFactor = ctk.StringVar(value='yes')
-        self.factorCheck = ctk.CTkCheckBox(self.factorSection, width=self.x/20, height=self.x/20, variable=self.inclFactor, onvalue="yes", offvalue='no', text=None)
+        # self.inclFactor = ctk.StringVar(value='yes')
+        # self.factorCheck = ctk.CTkCheckBox(self.factorSection, width=self.x/20, height=self.x/20, variable=self.inclFactor, onvalue="yes", offvalue='no', text=None)
         self.cancelButton= ctk.CTkButton(self.confirmFields, width=self.x/2.2, text='Cancel', command=self.cancel)
         self.okButton = ctk.CTkButton(self.confirmFields, width=self.x/2.2, text='OK', command=self.ok)
-        self.avg = ctk.StringVar(value=self.emojis['avg'])
+        self.avg = ctk.StringVar()
         self.avgLabel = ctk.CTkLabel(self.inoutSection, font=('TkCaptionFont', 20), textvariable=self.avg)
-        self.credits = ctk.StringVar(value=self.emojis['credits'])
+        self.credits = ctk.StringVar()
         self.creditsLabel = ctk.CTkLabel(self.inoutSection, font=('TkCaptionFont', 20), textvariable=self.credits)
 
         self.printerImage = ctk.CTkImage(Image.open(os.path.join(os.path.dirname(__file__), '../assets/printer-icon.png')))
