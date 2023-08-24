@@ -3,17 +3,18 @@
 ## Easy-to-use desktop application that helps students manage their grades and export a list as a PDF file.
 
 ## Features
-- __Add and change grades__
-- __See current average grade__
-- __Saved for future sessions__
-- __List of all grades as a PDF__
+- __Add/edit grades__
+- __View the current grade point average and total Credits__
+- __Persistent storage__
+- __Print overview as a PDF__
 
 ## Installation
 1. Clone the repository to your local machine
 2. Install the required dependencies by running `pip install -r requirements.txt`
-3. Run the app using `python main.py` (optionally package with [pyinstaller.sh](pyinstaller.sh) and make it executable)
+3. Run the app using `python main.py` or optionally package with [pyinstaller.sh](pyinstaller.sh) (adjust library path to your machine) and make it executable
 
-or visit the [download page](https://fabianjuelich.xyz/goodgrade) to download the executables for Windows and Linux
+or visit the [download page](https://fabianjuelich.xyz/goodgrade) to download the __executables for Windows and Linux__. \
+__Pro Tip:__ Configure the database path in the ___gg.ini___ that is created in the same folder as the application when you first start it, so you can store the data e.g. in your cloud, to sync the grades across devices.
 
 ## Usage
 1. E.g. to add a grade, click the "Add" button to enter the Insert-mode (Similar procedure for other modes)
