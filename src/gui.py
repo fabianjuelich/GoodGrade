@@ -206,7 +206,7 @@ class App(ctk.CTk):
         self.icon = tk.PhotoImage(file = os.path.join(os.path.dirname(__file__), '../assets/icons8-grades-100.png'))
         self.iconphoto(False, self.icon)
         ctk.set_appearance_mode('dark')
-        ctk.set_default_color_theme('green')
+        ctk.set_default_color_theme(os.path.join(os.path.dirname(__file__), '../assets/custom_theme.json'))
         
         # dimensions
         self.x = 360
