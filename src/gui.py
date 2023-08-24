@@ -95,7 +95,9 @@ class App(ctk.CTk):
         self.grade.set('')
         self.factor.set('')
 
+    currentCourse = None
     def showGrade(self, course):
+        self.currentCourse = course
         row = db.select(course)
         self.grade.set(row[1])
         self.factor.set(row[2])
@@ -142,11 +144,14 @@ class App(ctk.CTk):
 
     # confirmation
     def cancel(self, *_):
-        if self.mode:
-            self.mode = None
-            self.rstFeedback()
-            self.rstAll()
-            self.clearEntry()
+        if not self.mode: return
+        self.mode = None
+        self.rstFeedback()
+        self.rstAll()
+        self.clearEntry()
+        if self.currentCourse:
+            self.courseCombo.set(self.currentCourse)
+            self.showGrade(self.currentCourse)
 
     def setFeedbackBg(self, feedback, t, afterwards):
         self.feedback.set(feedback)
@@ -159,12 +164,12 @@ class App(ctk.CTk):
         errorThread.start()
 
     def ok(self, *_):
-        if not all(self.entryValid()):
-            return
+        if not all(self.entryValid()): return
         match(self.mode):
             case self.Mode.ADD:
                 try:
                     db.insert(self.course.get(), self.grade.get(), self.factor.get() if self.factor.get() else 1)
+                    self.currentCourse = self.course.get()
                     self.clearEntry()
                     self.courseCombo.focus_set()
                     self.refresh()
@@ -175,6 +180,7 @@ class App(ctk.CTk):
             case self.Mode.MOD:
                 try:
                     db.update(self.grade.get(), self.factor.get(), self.course.get())
+                    self.currentCourse = self.course.get()
                     self.disableEntry()
                     self.menuState(True, True, True)
                     self.refresh()
@@ -186,6 +192,7 @@ class App(ctk.CTk):
             case self.Mode.DEL:
                 try:
                     db.delete(self.course.get())
+                    self.currentCourse = None
                     self.clearEntry()
                     self.refresh()
                     self.mode = None
