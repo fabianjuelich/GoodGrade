@@ -2,7 +2,7 @@ from src.gui import App
 from configparser import ConfigParser
 import os
 
-configfile = os.path.join(os.path.dirname(__file__), 'config.ini')
+configfile = 'gg.ini'
 if not os.path.isfile(configfile):
     config = ConfigParser()
     config.add_section('database')

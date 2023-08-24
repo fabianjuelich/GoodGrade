@@ -3,8 +3,7 @@ from configparser import ConfigParser
 import os
 
 config = ConfigParser()
-config.read(os.path.join(os.path.dirname(__file__), '../config.ini'))
-
+config.read('gg.ini')
 try:
     if config.get('database', 'path'):
         connection = sqlite3.Connection(config.get('database', 'path'))
